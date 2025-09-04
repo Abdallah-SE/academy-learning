@@ -1,0 +1,48 @@
+# Root level .gitignore for Arabic Academy Project
+# Complements existing frontend/.gitignore and backend/.gitignore
+
+# Environment files (root level only)
+.env
+.env.*
+!.env.example
+
+# IDE and Editor files (root level only)
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files (root level only)
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs (root level only)
+*.log
+logs/
+
+# Temporary folders (root level only)
+tmp/
+temp/
+
+# Database files (root level only)
+*.sqlite
+*.db
+
+# Test script that might contain sensitive data
+test_admin_api.sh
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar

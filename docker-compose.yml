@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: arabic_academy_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: arabic_academy
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - arabic_academy_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: arabic_academy_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - arabic_academy_network
+
+  # Laravel Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../deployment/docker/backend/Dockerfile
+    container_name: arabic_academy_backend
+    restart: unless-stopped
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=mysql
+      - DB_DATABASE=arabic_academy
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+    volumes:
+      - ./backend:/var/www/html
+      - backend_storage:/var/www/html/storage
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - arabic_academy_network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../deployment/docker/frontend/Dockerfile
+    container_name: arabic_academy_frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://backend:8000/api
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+    networks:
+      - arabic_academy_network
+
+  # Nginx Reverse Proxy
+  nginx:
+    build:
+      context: ./deployment/docker/nginx
+      dockerfile: Dockerfile
+    container_name: arabic_academy_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deployment/nginx/conf.d:/etc/nginx/conf.d
+      - ./deployment/ssl:/etc/nginx/ssl
+      - backend_storage:/var/www/html/storage
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - arabic_academy_network
+
+volumes:
+  mysql_data:
+  backend_storage:
+
+networks:
+  arabic_academy_network:
+    driver: bridge
