@@ -28,6 +28,12 @@ export const Logo: React.FC<LogoProps> = ({
         width={width}
         height={height}
         className="mx-auto"
+        style={{ 
+          width: 'auto', 
+          height: 'auto',
+          maxWidth: '100%',
+          maxHeight: '100%'
+        }}
         priority={priority}
       />
     </div>
