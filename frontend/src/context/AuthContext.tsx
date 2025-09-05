@@ -10,12 +10,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const renderCount = useRef(0);
   
   renderCount.current += 1;
-  console.log(`🏗️ AuthProvider render #${renderCount.current}`);
-  
+   
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => {
-    console.log('🔒 AuthContext value memoized');
-    return auth;
+     return auth;
   }, [auth]);
   
   return (

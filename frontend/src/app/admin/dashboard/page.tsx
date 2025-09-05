@@ -15,15 +15,10 @@ export default function AdminDashboardPage() {
   const t = useTranslations('dashboard');
   const router = useRouter();
 
-  console.log('🏠 Dashboard render state:', {
-    user: user ? '✅ Present' : '❌ Missing',
-    isAuthenticated,
-    isInitializing
-  });
+ 
 
   useEffect(() => {
-    if (!isInitializing && !isAuthenticated) {
-      console.log(' Not authenticated, redirecting to login');
+    if (!isInitializing && !isAuthenticated) { 
       router.push('/admin/login');
     }
   }, [isAuthenticated, isInitializing, router]);
