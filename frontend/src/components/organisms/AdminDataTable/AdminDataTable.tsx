@@ -18,7 +18,6 @@ import { Admin, AdminTableConfig, AdminListActions } from '@/types/admin';
 import { AdminTableHeader } from './AdminTableHeader';
 import { AdminTableBody } from './AdminTableBody';
 import { AdminTablePagination } from './AdminTablePagination';
-import { AdminTableToolbar } from './AdminTableToolbar';
 import { AdminTableEmptyState } from './AdminTableEmptyState';
 import { AdminTableLoadingState } from './AdminTableLoadingState';
 import { EyeIcon, EditIcon, TrashIcon } from 'lucide-react';
@@ -37,9 +36,6 @@ interface AdminDataTableProps {
     to: number;
     has_more_pages: boolean;
   };
-  selectedAdmins: number[];
-  onSelectAdmin: (adminId: number, selected: boolean) => void;
-  onSelectAll: (selected: boolean) => void;
   onPageChange: (page: number) => void;
   onPerPageChange: (perPage: number) => void;
   onRefresh: () => void;
@@ -53,9 +49,6 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = memo(({
   loading = false,
   error = null,
   pagination,
-  selectedAdmins,
-  onSelectAdmin,
-  onSelectAll,
   onPageChange,
   onPerPageChange,
   onRefresh,
@@ -97,28 +90,6 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = memo(({
 
   const columns = useMemo<ColumnDef<Admin>[]>(
     () => [
-      {
-        id: 'select',
-        header: ({ table }) => (
-          <input
-            type="checkbox"
-            checked={table.getIsAllPageRowsSelected()}
-            onChange={(e) => onSelectAll(!!e.target.checked)}
-            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-        ),
-        cell: ({ row }) => (
-          <input
-            type="checkbox"
-            checked={selectedAdmins.includes(row.original.id)}
-            onChange={(e) => onSelectAdmin(row.original.id, !!e.target.checked)}
-            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-        size: 50,
-      },
       {
         accessorKey: 'avatar',
         header: 'Avatar',
@@ -316,7 +287,7 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = memo(({
         size: 120,
       },
     ],
-    [selectedAdmins, onSelectAdmin, onSelectAll, actions, handleEdit, handleDelete, handleView]
+    [actions, handleEdit, handleDelete, handleView]
   );
 
   const table = useReactTable({
@@ -371,23 +342,12 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = memo(({
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-      <AdminTableToolbar
-        selectedCount={selectedAdmins.length}
-        totalCount={pagination.total}
-        onRefresh={onRefresh}
-        onBulkDelete={actions.onBulkDelete}
-        onSelectAll={onSelectAll}
-        allSelected={selectedAdmins.length === data.length && data.length > 0}
-      />
-      
       <div className="overflow-hidden">
         <AdminTableHeader table={table} />
         
         <AdminTableBody
           table={table}
           data={data}
-          selectedAdmins={selectedAdmins}
-          onSelectAdmin={onSelectAdmin}
         />
       </div>
       

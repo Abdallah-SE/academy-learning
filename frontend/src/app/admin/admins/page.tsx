@@ -71,24 +71,12 @@ export default function AdminsPage() {
   };
 
 
-  const handleBulkDelete = async () => {
-    if (state.selectedAdmins.length === 0) return;
-    
-    if (window.confirm(`Are you sure you want to delete ${state.selectedAdmins.length} selected admins?`)) {
-      try {
-        await actions.handleBulkDelete();
-      } catch (err) {
-        console.error('Error deleting admins:', err);
-      }
-    }
-  };
 
   const adminActions: AdminListActions = {
     onCreate: handleCreateAdmin,
     onEdit: handleEdit,
     onDelete: handleDelete,
     onView: handleView,
-    onBulkDelete: handleBulkDelete,
     onRefresh: actions.handleRefresh,
   };
 
@@ -205,9 +193,6 @@ export default function AdminsPage() {
             loading={state.loading}
             error={state.error}
             pagination={state.pagination}
-            selectedAdmins={state.selectedAdmins}
-            onSelectAdmin={actions.handleSelectAdmin}
-            onSelectAll={actions.handleSelectAll}
             onPageChange={actions.handlePageChange}
             onPerPageChange={actions.handlePerPageChange}
             onRefresh={actions.handleRefresh}

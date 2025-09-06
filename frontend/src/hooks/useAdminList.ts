@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAdmins, useDeleteAdmin } from './useAdmins';
-import { Admin, AdminFilters, AdminListState, AdminListResponse } from '@/types/admin';
+import { AdminListState, AdminListResponse } from '@/types/admin';
 import { usePagination } from './usePagination';
 
 export const useAdminList = () => {
@@ -21,7 +21,6 @@ export const useAdminList = () => {
   const { data: adminsResponse, isLoading, error, refetch } = useAdmins(filters);
   const deleteAdminMutation = useDeleteAdmin();
 
-  const [selectedAdmins, setSelectedAdmins] = useState<number[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const admins = (adminsResponse as AdminListResponse)?.data || [];
@@ -39,30 +38,6 @@ export const useAdminList = () => {
     };
   }, [adminsResponse]);
 
-  const handleSelectAdmin = useCallback((adminId: number, selected: boolean) => {
-    setSelectedAdmins(prev => 
-      selected 
-        ? [...prev, adminId]
-        : prev.filter(id => id !== adminId)
-    );
-  }, []);
-
-  const handleSelectAll = useCallback((selected: boolean) => {
-    setSelectedAdmins(selected ? admins.map((admin: Admin) => admin.id) : []);
-  }, [admins]);
-
-  const handleBulkDelete = useCallback(async () => {
-    if (selectedAdmins.length === 0) return;
-    
-    try {
-      await Promise.all(
-        selectedAdmins.map(id => deleteAdminMutation.mutateAsync(id))
-      );
-      setSelectedAdmins([]);
-    } catch (error) {
-      console.error('Error deleting admins:', error);
-    }
-  }, [selectedAdmins, deleteAdminMutation]);
 
   const handleRefresh = useCallback(async () => {
     console.log('Refreshing admin data and clearing filters...');
@@ -88,7 +63,6 @@ export const useAdminList = () => {
     error: error?.message || null,
     pagination,
     filters,
-    selectedAdmins,
     isRefreshing,
   };
 
@@ -99,9 +73,6 @@ export const useAdminList = () => {
     handleStatusFilter,
     handleRoleFilter,
     handleSort,
-    handleSelectAdmin,
-    handleSelectAll,
-    handleBulkDelete,
     handleRefresh,
     resetFilters,
   }), [
@@ -111,9 +82,6 @@ export const useAdminList = () => {
     handleStatusFilter,
     handleRoleFilter,
     handleSort,
-    handleSelectAdmin,
-    handleSelectAll,
-    handleBulkDelete,
     handleRefresh,
     resetFilters,
   ]);

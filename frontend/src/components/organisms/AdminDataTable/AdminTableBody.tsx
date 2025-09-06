@@ -5,8 +5,6 @@ import { Admin } from '@/types/admin';
 interface AdminTableBodyProps {
   table: Table<Admin>;
   data: Admin[];
-  selectedAdmins: number[];
-  onSelectAdmin: (adminId: number, selected: boolean) => void;
 }
 
 export const AdminTableBody: React.FC<AdminTableBodyProps> = memo(({

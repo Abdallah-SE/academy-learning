@@ -60,7 +60,6 @@ export interface AdminListState {
   error: string | null;
   pagination: PaginationState;
   filters: AdminFilters;
-  selectedAdmins: number[];
   isRefreshing?: boolean;
 }
 
@@ -98,6 +97,5 @@ export interface AdminListActions {
   onEdit: (admin: Admin) => void;
   onDelete: (admin: Admin) => void;
   onView: (admin: Admin) => void;
-  onBulkDelete: () => void;
   onRefresh: () => void;
 }
