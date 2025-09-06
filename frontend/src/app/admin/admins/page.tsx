@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from '@/hooks/useTranslations';
 import { useRouter } from 'next/navigation';
 import { MainLayout } from '@/components/organisms/MainLayout';
 import { AdminDataTable } from '@/components/organisms/AdminDataTable/AdminDataTable';
@@ -14,6 +16,8 @@ import { usePageBreadcrumb } from '@/hooks/useBreadcrumb';
 
 export default function AdminsPage() {
   const { isAuthenticated, isInitializing, logout } = useAuthContext();
+  const { currentLanguage } = useLanguage();
+  const t = useTranslations('admin');
   const router = useRouter();
 
   const {
@@ -25,13 +29,13 @@ export default function AdminsPage() {
   // Set custom breadcrumb for this page
   const pageBreadcrumbs = useMemo(() => [
     {
-      label: 'Admins',
+      label: t('admins'),
       href: '/admin/admins',
       icon: <PlusIcon className="w-4 h-4" />,
       isActive: true,
       isClickable: false,
     }
-  ], []);
+  ], [t]);
 
   usePageBreadcrumb(pageBreadcrumbs);
 
@@ -107,7 +111,7 @@ export default function AdminsPage() {
         <div className="flex items-center justify-between h-16 px-6">
           <div className="flex items-center space-x-4">
             <h1 className="text-xl font-semibold text-gray-900">
-              Admin Management
+              {t('title')}
             </h1>
           </div>
           
@@ -118,7 +122,7 @@ export default function AdminsPage() {
               onClick={logout}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
             >
-              Logout
+              {t('logout')}
             </button>
           </div>
         </div>
@@ -135,7 +139,7 @@ export default function AdminsPage() {
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Search by name, email, or username..."
+                    placeholder={t('searchPlaceholder')}
                     value={state.filters.search || ''}
                     onChange={(e) => actions.handleSearch(e.target.value)}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80"
@@ -151,10 +155,10 @@ export default function AdminsPage() {
                   onChange={(e) => actions.handleStatusFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="suspended">Suspended</option>
+                  <option value="">{t('allStatus')}</option>
+                  <option value="active">{t('active')}</option>
+                  <option value="inactive">{t('inactive')}</option>
+                  <option value="suspended">{t('suspended')}</option>
                 </select>
 
                 {/* Role Filter */}
@@ -163,10 +167,10 @@ export default function AdminsPage() {
                   onChange={(e) => actions.handleRoleFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">All Roles</option>
-                  <option value="super_admin">Super Admin</option>
-                  <option value="admin">Admin</option>
-                  <option value="moderator">Moderator</option>
+                  <option value="">{t('allRoles')}</option>
+                  <option value="super_admin">{t('superAdmin')}</option>
+                  <option value="admin">{t('admin')}</option>
+                  <option value="moderator">{t('moderator')}</option>
                 </select>
               </div>
 
@@ -189,7 +193,7 @@ export default function AdminsPage() {
                   className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
                 >
                   <PlusIcon className="w-4 h-4" />
-                  Add Admin
+                  {t('addAdmin')}
                 </button>
               </div>
             </div>

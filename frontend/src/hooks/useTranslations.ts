@@ -46,6 +46,37 @@ const translations = {
       analytics: 'Analytics',
       notifications: 'Notifications',
       help: 'Help'
+    },
+    admin: {
+      title: 'Admin Management',
+      admins: 'Admins',
+      addAdmin: 'Add Admin',
+      searchPlaceholder: 'Search by name, email, or username...',
+      allStatus: 'All Status',
+      allRoles: 'All Roles',
+      active: 'Active',
+      inactive: 'Inactive',
+      suspended: 'Suspended',
+      superAdmin: 'Super Admin',
+      admin: 'Admin',
+      moderator: 'Moderator',
+      avatar: 'Avatar',
+      name: 'Name',
+      username: 'Username',
+      status: 'Status',
+      lastLogin: 'Last Login',
+      created: 'Created',
+      actions: 'Actions',
+      viewDetails: 'View Details',
+      editAdmin: 'Edit Admin',
+      deleteAdmin: 'Delete Admin',
+      never: 'Never',
+      justNow: 'Just now',
+      hoursAgo: '{hours}h ago',
+      daysAgo: '{days}d ago',
+      logout: 'Logout',
+      refresh: 'Refresh',
+      export: 'Export'
     }
   },
   ar: {
@@ -92,6 +123,37 @@ const translations = {
       analytics: 'التحليلات',
       notifications: 'الإشعارات',
       help: 'المساعدة'
+    },
+    admin: {
+      title: 'إدارة المدراء',
+      admins: 'المدراء',
+      addAdmin: 'إضافة مدير',
+      searchPlaceholder: 'البحث بالاسم أو البريد الإلكتروني أو اسم المستخدم...',
+      allStatus: 'جميع الحالات',
+      allRoles: 'جميع الأدوار',
+      active: 'نشط',
+      inactive: 'غير نشط',
+      suspended: 'معلق',
+      superAdmin: 'مدير عام',
+      admin: 'مدير',
+      moderator: 'مشرف',
+      avatar: 'الصورة الشخصية',
+      name: 'الاسم',
+      username: 'اسم المستخدم',
+      status: 'الحالة',
+      lastLogin: 'آخر تسجيل دخول',
+      created: 'تاريخ الإنشاء',
+      actions: 'الإجراءات',
+      viewDetails: 'عرض التفاصيل',
+      editAdmin: 'تعديل المدير',
+      deleteAdmin: 'حذف المدير',
+      never: 'أبداً',
+      justNow: 'الآن',
+      hoursAgo: 'منذ {hours} ساعة',
+      daysAgo: 'منذ {days} يوم',
+      logout: 'تسجيل الخروج',
+      refresh: 'تحديث',
+      export: 'تصدير'
     }
   },
   de: {
@@ -138,6 +200,37 @@ const translations = {
       analytics: 'Analysen',
       notifications: 'Benachrichtigungen',
       help: 'Hilfe'
+    },
+    admin: {
+      title: 'Admin-Verwaltung',
+      admins: 'Admins',
+      addAdmin: 'Admin hinzufügen',
+      searchPlaceholder: 'Nach Name, E-Mail oder Benutzername suchen...',
+      allStatus: 'Alle Status',
+      allRoles: 'Alle Rollen',
+      active: 'Aktiv',
+      inactive: 'Inaktiv',
+      suspended: 'Gesperrt',
+      superAdmin: 'Super Admin',
+      admin: 'Admin',
+      moderator: 'Moderator',
+      avatar: 'Avatar',
+      name: 'Name',
+      username: 'Benutzername',
+      status: 'Status',
+      lastLogin: 'Letzter Login',
+      created: 'Erstellt',
+      actions: 'Aktionen',
+      viewDetails: 'Details anzeigen',
+      editAdmin: 'Admin bearbeiten',
+      deleteAdmin: 'Admin löschen',
+      never: 'Nie',
+      justNow: 'Gerade eben',
+      hoursAgo: 'vor {hours}h',
+      daysAgo: 'vor {days}d',
+      logout: 'Abmelden',
+      refresh: 'Aktualisieren',
+      export: 'Exportieren'
     }
   }
 };
@@ -145,13 +238,13 @@ const translations = {
 export const useTranslations = (namespace: keyof typeof translations.en) => {
   const { currentLanguage } = useLanguage();
   
-  const t = (key: string, params?: Record<string, any>) => {
+  const t = (key: string, params?: Record<string, string | number>) => {
     const namespaceTranslations = translations[currentLanguage as keyof typeof translations]?.[namespace];
-    let text = namespaceTranslations?.[key as keyof typeof namespaceTranslations] || key;
+    let text: string = (namespaceTranslations as Record<string, string>)?.[key] || key;
     
     if (params) {
       Object.keys(params).forEach(param => {
-        text = text.replace(`{${param}}`, params[param]);
+        text = text.replace(`{${param}}`, String(params[param]));
       });
     }
     
