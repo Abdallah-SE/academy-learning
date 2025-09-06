@@ -185,6 +185,10 @@ class AdminService
             $filters['role'] = $request->get('role');
         }
 
+        if ($request->has('search')) {
+            $filters['search'] = $request->get('search');
+        }
+
         return $filters;
     }
 

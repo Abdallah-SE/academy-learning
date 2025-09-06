@@ -129,6 +129,15 @@ class AdminRepository extends BaseRepository implements AdminRepositoryInterface
         if (isset($filters['role'])) {
             $query->role($filters['role']);
         }
+
+        if (isset($filters['search']) && !empty($filters['search'])) {
+            $searchTerm = $filters['search'];
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('email', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('username', 'LIKE', "%{$searchTerm}%");
+            });
+        }
     }
 
 
