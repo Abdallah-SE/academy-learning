@@ -31,7 +31,6 @@ import {
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-  DownloadIcon,
   RefreshCwIcon
 } from 'lucide-react';
 
@@ -42,7 +41,6 @@ interface AdminDataTableProps {
   onDelete?: (admin: Admin) => void;
   onView?: (admin: Admin) => void;
   onRefresh?: () => void;
-  onExport?: () => void;
 }
 
 const columnHelper = createColumnHelper<Admin>();
@@ -54,7 +52,6 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
   onDelete,
   onView,
   onRefresh,
-  onExport,
 }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -338,13 +335,6 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
                 title="Refresh data"
               >
                 <RefreshCwIcon className="w-5 h-5" />
-              </button>
-              <button
-                onClick={onExport}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Export data"
-              >
-                <DownloadIcon className="w-5 h-5" />
               </button>
             </div>
           </div>

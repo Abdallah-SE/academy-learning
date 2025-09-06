@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, memo } from 'react';
 import Image from 'next/image';
 import {
   getCoreRowModel,
@@ -22,6 +22,38 @@ import { AdminTableToolbar } from './AdminTableToolbar';
 import { AdminTableEmptyState } from './AdminTableEmptyState';
 import { AdminTableLoadingState } from './AdminTableLoadingState';
 import { EyeIcon, EditIcon, TrashIcon } from 'lucide-react';
+
+// Memoized Avatar Cell Component
+const AvatarCell = memo(({ admin }: { admin: Admin }) => {
+  const avatarUrl = admin.avatar_url || admin.avatar;
+  const initials = admin.name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  return (
+    <div className="flex items-center justify-center w-12 h-12 flex-shrink-0">
+      {avatarUrl ? (
+        <Image
+          src={avatarUrl}
+          alt={`${admin.name}'s avatar`}
+          width={48}
+          height={48}
+          className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 hover:border-blue-400 transition-all duration-200 shadow-sm hover:shadow-md"
+          unoptimized={true}
+        />
+      ) : (
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm border-2 border-gray-200 hover:border-blue-400 transition-all duration-200 shadow-sm hover:shadow-md">
+          {initials}
+        </div>
+      )}
+    </div>
+  );
+});
+
+AvatarCell.displayName = 'AvatarCell';
 
 interface AdminDataTableProps {
   data: Admin[];
@@ -47,7 +79,7 @@ interface AdminDataTableProps {
 }
 
 
-export const AdminDataTable: React.FC<AdminDataTableProps> = ({
+export const AdminDataTable: React.FC<AdminDataTableProps> = memo(({
   data,
   loading = false,
   error = null,
@@ -82,6 +114,19 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
     ...config,
   };
 
+  // Memoized action handlers to prevent column recreation
+  const handleEdit = useCallback((admin: Admin) => {
+    actions.onEdit(admin);
+  }, [actions]);
+
+  const handleDelete = useCallback((admin: Admin) => {
+    actions.onDelete(admin);
+  }, [actions]);
+
+  const handleView = useCallback((admin: Admin) => {
+    actions.onView(admin);
+  }, [actions]);
+
   const columns = useMemo<ColumnDef<Admin>[]>(
     () => [
       {
@@ -107,54 +152,25 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
         size: 50,
       },
       {
-        accessorKey: 'avatar',
-        header: '',
-        cell: ({ row }) => {
-          const admin = row.original;
-          const avatarUrl = admin.avatar_url || admin.avatar;
-          const initials = admin.name
-            .split(' ')
-            .map(n => n[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2);
-
-          return (
-            <div className="flex items-center justify-center w-12 h-12">
-              {avatarUrl ? (
-                <Image
-                  src={avatarUrl}
-                  alt={`${admin.name}'s avatar`}
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 hover:border-blue-300 transition-colors"
-                  unoptimized={true}
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-200 hover:border-blue-300 transition-colors">
-                  {initials}
-                </div>
-              )}
-            </div>
-          );
-        },
-        enableSorting: false,
-        enableHiding: false,
-        size: 80,
-      },
-      {
         accessorKey: 'name',
-        header: 'Name',
+        header: 'Admin',
         cell: ({ row }) => {
           const admin = row.original;
           return (
-            <div className="flex flex-col">
-              <span className="font-medium text-gray-900">{admin.name}</span>
-              <span className="text-sm text-gray-500">{admin.email}</span>
+            <div className="flex items-center space-x-3">
+              <AvatarCell admin={admin} />
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-sm font-semibold text-gray-900 truncate">
+                  {admin.name}
+                </span>
+                <span className="text-xs text-gray-500 truncate">
+                  {admin.email}
+                </span>
+              </div>
             </div>
           );
         },
-        size: 250,
+        size: 300,
       },
       {
         accessorKey: 'username',
@@ -162,25 +178,60 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
         cell: ({ row }) => {
           const username = row.getValue('username') as string;
           return (
-            <span className="text-gray-900">
-              {username || '-'}
-            </span>
+            <div className="flex items-center">
+              <span className="text-sm font-medium text-gray-900">
+                {username || '-'}
+              </span>
+            </div>
           );
         },
-        size: 150,
+        size: 140,
       },
       {
         accessorKey: 'role',
         header: 'Role',
         cell: ({ row }) => {
           const role = row.getValue('role') as string;
+          const getRoleConfig = (role: string) => {
+            switch (role) {
+              case 'super_admin':
+                return { 
+                  color: 'bg-red-50 text-red-700 border-red-200', 
+                  label: 'Super Admin',
+                  icon: '👑'
+                };
+              case 'admin':
+                return { 
+                  color: 'bg-blue-50 text-blue-700 border-blue-200', 
+                  label: 'Admin',
+                  icon: '👨‍💼'
+                };
+              case 'moderator':
+                return { 
+                  color: 'bg-green-50 text-green-700 border-green-200', 
+                  label: 'Moderator',
+                  icon: '🛡️'
+                };
+              default:
+                return { 
+                  color: 'bg-gray-50 text-gray-700 border-gray-200', 
+                  label: 'Unknown',
+                  icon: '❓'
+                };
+            }
+          };
+
+          const config = getRoleConfig(role);
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              {role}
-            </span>
+            <div className="flex items-center">
+              <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border ${config.color}`}>
+                <span className="mr-1.5">{config.icon}</span>
+                {config.label}
+              </span>
+            </div>
           );
         },
-        size: 120,
+        size: 130,
       },
       {
         accessorKey: 'status',
@@ -188,16 +239,37 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
         cell: ({ row }) => {
           const status = row.getValue('status') as string;
           const statusConfig = {
-            active: { bg: 'bg-green-100', text: 'text-green-800', label: 'Active' },
-            inactive: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Inactive' },
-            suspended: { bg: 'bg-red-100', text: 'text-red-800', label: 'Suspended' },
+            active: { 
+              bg: 'bg-green-50', 
+              text: 'text-green-700', 
+              border: 'border-green-200',
+              label: 'Active',
+              icon: '🟢'
+            },
+            inactive: { 
+              bg: 'bg-gray-50', 
+              text: 'text-gray-700', 
+              border: 'border-gray-200',
+              label: 'Inactive',
+              icon: '⚪'
+            },
+            suspended: { 
+              bg: 'bg-red-50', 
+              text: 'text-red-700', 
+              border: 'border-red-200',
+              label: 'Suspended',
+              icon: '🔴'
+            },
           };
           const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.inactive;
           
           return (
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
-              {config.label}
-            </span>
+            <div className="flex items-center">
+              <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border ${config.bg} ${config.text} ${config.border}`}>
+                <span className="mr-1.5">{config.icon}</span>
+                {config.label}
+              </span>
+            </div>
           );
         },
         size: 120,
@@ -207,26 +279,60 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
         header: 'Last Login',
         cell: ({ row }) => {
           const lastLogin = row.getValue('last_login_at') as string;
+          const formatDate = (dateString: string) => {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+            
+            if (diffInHours < 1) return 'Just now';
+            if (diffInHours < 24) return `${diffInHours}h ago`;
+            if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          };
+
           return (
-            <span className="text-gray-900">
-              {lastLogin ? new Date(lastLogin).toLocaleDateString() : 'Never'}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-gray-900">
+                {lastLogin ? formatDate(lastLogin) : 'Never'}
+              </span>
+              {lastLogin && (
+                <span className="text-xs text-gray-500">
+                  {new Date(lastLogin).toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}
+                </span>
+              )}
+            </div>
           );
         },
-        size: 150,
+        size: 140,
       },
       {
         accessorKey: 'created_at',
         header: 'Created',
         cell: ({ row }) => {
           const createdAt = row.getValue('created_at') as string;
+          const date = new Date(createdAt);
           return (
-            <span className="text-gray-900">
-              {new Date(createdAt).toLocaleDateString()}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-gray-900">
+                {date.toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric', 
+                  year: 'numeric' 
+                })}
+              </span>
+              <span className="text-xs text-gray-500">
+                {date.toLocaleTimeString('en-US', { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
+              </span>
+            </div>
           );
         },
-        size: 150,
+        size: 140,
       },
       {
         id: 'actions',
@@ -234,32 +340,32 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
         cell: ({ row }) => {
           const admin = row.original;
           return (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center space-x-1">
               {actions.onView && (
                 <button
-                  onClick={() => actions.onView(admin)}
-                  className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                  title="View"
+                  onClick={() => handleView(admin)}
+                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
+                  title="View Details"
                 >
-                  <EyeIcon className="w-4 h-4" />
+                  <EyeIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 </button>
               )}
               {actions.onEdit && (
                 <button
-                  onClick={() => actions.onEdit(admin)}
-                  className="p-1 text-gray-400 hover:text-green-600 transition-colors"
-                  title="Edit"
+                  onClick={() => handleEdit(admin)}
+                  className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 group"
+                  title="Edit Admin"
                 >
-                  <EditIcon className="w-4 h-4" />
+                  <EditIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 </button>
               )}
               {actions.onDelete && (
                 <button
-                  onClick={() => actions.onDelete(admin)}
-                  className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                  title="Delete"
+                  onClick={() => handleDelete(admin)}
+                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group"
+                  title="Delete Admin"
                 >
-                  <TrashIcon className="w-4 h-4" />
+                  <TrashIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 </button>
               )}
             </div>
@@ -270,7 +376,7 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
         size: 120,
       },
     ],
-    [selectedAdmins, onSelectAdmin, onSelectAll, actions]
+    [selectedAdmins, onSelectAdmin, onSelectAll, actions, handleEdit, handleDelete, handleView]
   );
 
   const table = useReactTable({
@@ -324,25 +430,26 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
       <AdminTableToolbar
         selectedCount={selectedAdmins.length}
         totalCount={pagination.total}
         onRefresh={onRefresh}
-        onExport={() => actions.onExport('csv')}
         onBulkDelete={actions.onBulkDelete}
         onSelectAll={onSelectAll}
         allSelected={selectedAdmins.length === data.length && data.length > 0}
       />
       
-      <AdminTableHeader table={table} />
-      
-      <AdminTableBody
-        table={table}
-        data={data}
-        selectedAdmins={selectedAdmins}
-        onSelectAdmin={onSelectAdmin}
-      />
+      <div className="overflow-hidden">
+        <AdminTableHeader table={table} />
+        
+        <AdminTableBody
+          table={table}
+          data={data}
+          selectedAdmins={selectedAdmins}
+          onSelectAdmin={onSelectAdmin}
+        />
+      </div>
       
       {data.length === 0 && (
         <AdminTableEmptyState
@@ -362,4 +469,6 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = ({
       />
     </div>
   );
-};
+});
+
+AdminDataTable.displayName = 'AdminDataTable';

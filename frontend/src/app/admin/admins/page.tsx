@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { MainLayout } from '@/components/organisms/MainLayout';
@@ -9,7 +9,8 @@ import { Loading } from '@/components/atoms/Loading';
 import { LanguageSelector } from '@/components/atoms/LanguageSelector';
 import { useAdminList } from '@/hooks/useAdminList';
 import { Admin, AdminListActions } from '@/types/admin';
-import { PlusIcon, RefreshCwIcon, DownloadIcon } from 'lucide-react';
+import { PlusIcon, RefreshCwIcon } from 'lucide-react';
+import { usePageBreadcrumb } from '@/hooks/useBreadcrumb';
 
 export default function AdminsPage() {
   const { isAuthenticated, isInitializing, logout } = useAuthContext();
@@ -20,6 +21,19 @@ export default function AdminsPage() {
     actions,
     deleteAdminMutation,
   } = useAdminList();
+
+  // Set custom breadcrumb for this page
+  const pageBreadcrumbs = useMemo(() => [
+    {
+      label: 'Admins',
+      href: '/admin/admins',
+      icon: <PlusIcon className="w-4 h-4" />,
+      isActive: true,
+      isClickable: false,
+    }
+  ], []);
+
+  usePageBreadcrumb(pageBreadcrumbs);
 
   useEffect(() => {
     if (!isInitializing && !isAuthenticated) {
@@ -52,10 +66,6 @@ export default function AdminsPage() {
     console.log('Create new admin');
   };
 
-  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-    // TODO: Implement export functionality
-    console.log('Export admins as', format);
-  };
 
   const handleBulkDelete = async () => {
     if (state.selectedAdmins.length === 0) return;
@@ -75,7 +85,6 @@ export default function AdminsPage() {
     onDelete: handleDelete,
     onView: handleView,
     onBulkDelete: handleBulkDelete,
-    onExport: handleExport,
     onRefresh: actions.handleRefresh,
   };
 
@@ -177,13 +186,6 @@ export default function AdminsPage() {
                   title={state.isRefreshing ? "Refreshing..." : "Refresh & Clear Filters"}
                 >
                   <RefreshCwIcon className={`w-5 h-5 ${state.isRefreshing ? 'animate-spin' : ''}`} />
-                </button>
-                <button
-                  onClick={() => handleExport('csv')}
-                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <DownloadIcon className="w-4 h-4" />
-                  Export
                 </button>
                 <button
                   onClick={handleCreateAdmin}

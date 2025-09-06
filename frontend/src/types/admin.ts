@@ -99,6 +99,5 @@ export interface AdminListActions {
   onDelete: (admin: Admin) => void;
   onView: (admin: Admin) => void;
   onBulkDelete: () => void;
-  onExport: (format: 'csv' | 'excel' | 'pdf') => void;
   onRefresh: () => void;
 }

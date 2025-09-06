@@ -92,7 +92,7 @@ export const useAdminList = () => {
     isRefreshing,
   };
 
-  const actions = {
+  const actions = useMemo(() => ({
     handlePageChange,
     handlePerPageChange,
     handleSearch,
@@ -104,7 +104,19 @@ export const useAdminList = () => {
     handleBulkDelete,
     handleRefresh,
     resetFilters,
-  };
+  }), [
+    handlePageChange,
+    handlePerPageChange,
+    handleSearch,
+    handleStatusFilter,
+    handleRoleFilter,
+    handleSort,
+    handleSelectAdmin,
+    handleSelectAll,
+    handleBulkDelete,
+    handleRefresh,
+    resetFilters,
+  ]);
 
   return {
     state,

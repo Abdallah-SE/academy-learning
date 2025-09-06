@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/hooks/useTranslations';
@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import { LanguageSelector } from '@/components/atoms/LanguageSelector';
 import { Loading } from '@/components/atoms/Loading';
 import { MainLayout } from '@/components/organisms/MainLayout';
+import { usePageBreadcrumb } from '@/hooks/useBreadcrumb';
+import { HomeIcon } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const { user, isAuthenticated, isInitializing, logout } = useAuthContext();
@@ -15,7 +17,18 @@ export default function AdminDashboardPage() {
   const t = useTranslations('dashboard');
   const router = useRouter();
 
- 
+  // Set custom breadcrumb for this page
+  const pageBreadcrumbs = useMemo(() => [
+    {
+      label: 'Dashboard',
+      href: '/admin/dashboard',
+      icon: <HomeIcon className="w-4 h-4" />,
+      isActive: true,
+      isClickable: false,
+    }
+  ], []);
+
+  usePageBreadcrumb(pageBreadcrumbs);
 
   useEffect(() => {
     if (!isInitializing && !isAuthenticated) { 

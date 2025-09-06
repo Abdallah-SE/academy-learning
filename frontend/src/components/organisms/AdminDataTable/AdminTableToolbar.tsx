@@ -1,11 +1,10 @@
 import React from 'react';
-import { RefreshCwIcon, DownloadIcon, TrashIcon } from 'lucide-react';
+import { RefreshCwIcon, TrashIcon } from 'lucide-react';
 
 interface AdminTableToolbarProps {
   selectedCount: number;
   totalCount: number;
   onRefresh: () => void;
-  onExport: () => void;
   onBulkDelete: () => void;
   onSelectAll: (selected: boolean) => void;
   allSelected: boolean;
@@ -15,7 +14,6 @@ export const AdminTableToolbar: React.FC<AdminTableToolbarProps> = ({
   selectedCount,
   totalCount,
   onRefresh,
-  onExport,
   onBulkDelete,
   onSelectAll,
   allSelected,
@@ -47,13 +45,6 @@ export const AdminTableToolbar: React.FC<AdminTableToolbarProps> = ({
               title="Refresh data"
             >
               <RefreshCwIcon className="w-5 h-5" />
-            </button>
-            <button
-              onClick={onExport}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Export data"
-            >
-              <DownloadIcon className="w-5 h-5" />
             </button>
             {selectedCount > 0 && (
               <button
