@@ -7,12 +7,13 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { useRouter } from 'next/navigation';
 import { LanguageSelector } from '@/components/atoms/LanguageSelector';
 import { Loading } from '@/components/atoms/Loading';
+import { LogoutButton, LogoutDropdown } from '@/components/atoms';
 import { MainLayout } from '@/components/organisms/MainLayout';
 import { usePageBreadcrumb } from '@/hooks/useBreadcrumb';
 import { HomeIcon } from 'lucide-react';
 
 export default function AdminDashboardPage() {
-  const { user, isAuthenticated, isInitializing, logout } = useAuthContext();
+  const { user, isAuthenticated, isInitializing } = useAuthContext();
   const { currentLanguage } = useLanguage();
   const t = useTranslations('dashboard');
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     if (!isInitializing && !isAuthenticated) { 
-      router.push('/admin/login');
+      router.replace('/admin/login');
     }
   }, [isAuthenticated, isInitializing, router]);
 
@@ -62,12 +63,15 @@ export default function AdminDashboardPage() {
           <div className="flex items-center space-x-4">
             <LanguageSelector />
             <div className="h-6 w-px bg-gray-300"></div>
-            <button
-              onClick={logout}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-            >
-              {t('logout')}
-            </button>
+            <LogoutDropdown 
+              user={{
+                name: user?.name,
+                email: user?.email,
+                avatar: user?.avatar
+              }}
+              variant="profile"
+              translationNamespace="dashboard"
+            />
           </div>
         </div>
       </header>

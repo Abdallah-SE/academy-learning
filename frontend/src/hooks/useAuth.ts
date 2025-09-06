@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdminRepository, AdminLoginData, AdminUser } from '@/repositories/adminRepository';
+import { cookieUtils } from '@/utils/cookies';
 
 interface UseAuthReturn {
   user: AdminUser | null;
@@ -102,11 +103,34 @@ export const useAuth = (): UseAuthReturn => {
       await AdminRepository.logout(); // ✅ Backend clears cookie
      } catch (err) {
        // ✅ Don't prevent logout even if API call fails
+       console.warn('Logout API call failed, but continuing with logout:', err);
     } finally {
+      // ✅ Clear authentication state first
       setUser(null);
       setError(null);
       setIsLoading(false);
-      router.push('/admin/login');
+      
+      // ✅ Clear any client-side cookies as backup
+      cookieUtils.remove('token');
+      cookieUtils.remove('admin_token');
+      cookieUtils.remove('auth_token');
+      
+      // ✅ Reset initialization flag to force re-check on next login
+      hasInitialized.current = false;
+      
+      // ✅ Force redirect to login page with fallback
+      try {
+        router.replace('/admin/login');
+        // Fallback: force page reload if router doesn't work
+        setTimeout(() => {
+          if (window.location.pathname !== '/admin/login') {
+            window.location.href = '/admin/login';
+          }
+        }, 100);
+      } catch (redirectError) {
+        console.warn('Router redirect failed, using window.location:', redirectError);
+        window.location.href = '/admin/login';
+      }
     }
   }, [router]);
 

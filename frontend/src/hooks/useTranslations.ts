@@ -27,7 +27,8 @@ const translations = {
       save: 'Save',
       delete: 'Delete',
       edit: 'Edit',
-      view: 'View'
+      view: 'View',
+      logout: 'Logout'
     },
     auth: {
       login: 'Login',
@@ -104,7 +105,8 @@ const translations = {
       save: 'حفظ',
       delete: 'حذف',
       edit: 'تعديل',
-      view: 'عرض'
+      view: 'عرض',
+      logout: 'تسجيل الخروج'
     },
     auth: {
       login: 'تسجيل الدخول',
@@ -181,7 +183,8 @@ const translations = {
       save: 'Speichern',
       delete: 'Löschen',
       edit: 'Bearbeiten',
-      view: 'Anzeigen'
+      view: 'Anzeigen',
+      logout: 'Abmelden'
     },
     auth: {
       login: 'Anmelden',
