@@ -1,9 +1,12 @@
 import { useState, useCallback, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAdmins, useDeleteAdmin } from './useAdmins';
-import { Admin, AdminFilters, AdminListState } from '@/types/admin';
+import { Admin, AdminFilters, AdminListState, AdminListResponse } from '@/types/admin';
 import { usePagination } from './usePagination';
 
 export const useAdminList = () => {
+  const queryClient = useQueryClient();
+  
   const {
     filters,
     handlePageChange,
@@ -19,11 +22,12 @@ export const useAdminList = () => {
   const deleteAdminMutation = useDeleteAdmin();
 
   const [selectedAdmins, setSelectedAdmins] = useState<number[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const admins = adminsResponse?.data || [];
+  const admins = (adminsResponse as AdminListResponse)?.data || [];
   const pagination = useMemo(() => {
     // Handle both flat and nested pagination structures
-    const paginationData = adminsResponse?.pagination || adminsResponse;
+    const paginationData = (adminsResponse as AdminListResponse)?.pagination;
     return {
       current_page: paginationData?.current_page || 1,
       last_page: paginationData?.last_page || 1,
@@ -44,7 +48,7 @@ export const useAdminList = () => {
   }, []);
 
   const handleSelectAll = useCallback((selected: boolean) => {
-    setSelectedAdmins(selected ? admins.map(admin => admin.id) : []);
+    setSelectedAdmins(selected ? admins.map((admin: Admin) => admin.id) : []);
   }, [admins]);
 
   const handleBulkDelete = useCallback(async () => {
@@ -60,9 +64,23 @@ export const useAdminList = () => {
     }
   }, [selectedAdmins, deleteAdminMutation]);
 
-  const handleRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
+  const handleRefresh = useCallback(async () => {
+    console.log('Refreshing admin data and clearing filters...');
+    setIsRefreshing(true);
+    try {
+      // Reset all filters and search
+      resetFilters();
+      
+      // Invalidate and refetch the admins query
+      await queryClient.invalidateQueries({ queryKey: ['admins'] });
+      await refetch();
+      console.log('Admin data refreshed and filters cleared successfully');
+    } catch (error) {
+      console.error('Error refreshing admin data:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [queryClient, refetch, resetFilters]);
 
   const state: AdminListState = {
     data: admins,
@@ -71,6 +89,7 @@ export const useAdminList = () => {
     pagination,
     filters,
     selectedAdmins,
+    isRefreshing,
   };
 
   const actions = {

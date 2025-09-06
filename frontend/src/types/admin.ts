@@ -15,13 +15,15 @@ export interface Admin {
 
 export interface AdminListResponse {
   data: Admin[];
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
+  pagination: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
+    has_more_pages: boolean;
+  };
 }
 
 export interface AdminFilters {
@@ -59,6 +61,7 @@ export interface AdminListState {
   pagination: PaginationState;
   filters: AdminFilters;
   selectedAdmins: number[];
+  isRefreshing?: boolean;
 }
 
 export interface PaginationState {

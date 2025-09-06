@@ -130,6 +130,7 @@ export default function AdminsPage() {
                   <input
                     type="text"
                     placeholder="Search by name, email, or username..."
+                    value={state.filters.search || ''}
                     onChange={(e) => actions.handleSearch(e.target.value)}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80"
                   />
@@ -140,6 +141,7 @@ export default function AdminsPage() {
 
                 {/* Status Filter */}
                 <select
+                  value={state.filters.status || ''}
                   onChange={(e) => actions.handleStatusFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
@@ -151,6 +153,7 @@ export default function AdminsPage() {
 
                 {/* Role Filter */}
                 <select
+                  value={state.filters.role || ''}
                   onChange={(e) => actions.handleRoleFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
@@ -162,12 +165,18 @@ export default function AdminsPage() {
               </div>
 
               <div className="flex items-center space-x-2">
+              
                 <button
                   onClick={actions.handleRefresh}
-                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                  title="Refresh"
+                  disabled={state.isRefreshing}
+                  className={`p-2 transition-colors ${
+                    state.isRefreshing 
+                      ? 'text-gray-300 cursor-not-allowed' 
+                      : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg'
+                  }`}
+                  title={state.isRefreshing ? "Refreshing..." : "Refresh & Clear Filters"}
                 >
-                  <RefreshCwIcon className="w-5 h-5" />
+                  <RefreshCwIcon className={`w-5 h-5 ${state.isRefreshing ? 'animate-spin' : ''}`} />
                 </button>
                 <button
                   onClick={() => handleExport('csv')}
