@@ -25,43 +25,38 @@ class AdminAuthService
      */
     public function authenticate(array $credentials, Request $request): array
     {
+        // Check if remember me is requested
+        $remember = isset($credentials['remember']) && $credentials['remember'];
 
-        // Check if admin exists and is active
-        $admin = $this->adminRepository->findByEmail($credentials['email']);
+        // Set longer expiration for remember me
+        if ($remember) {
+            config(['jwt.ttl' => config('jwt.remember_ttl', 43200)]);
+        }
 
+        // ✅ SINGLE AUTHENTICATION ATTEMPT - This validates both email and password
+        $token = Auth::guard('admin')->claims([
+            'type' => 'admin',
+            'remember' => $remember
+        ])->attempt([
+            'email' => $credentials['email'],
+            'password' => $credentials['password']
+        ], $remember);
 
-        if (!$admin) {
+        // ✅ If authentication fails, throw exception
+        if (!$token) {
             throw new CustomException('Invalid credentials or account is inactive', 401, [
-                'email' => $credentials['email'],
-                'admin_status' => $admin?->status
+                'email' => $credentials['email']
             ]);
         }
 
+        // ✅ Get the authenticated admin
+        $admin = Auth::guard('admin')->user();
 
-        // Check if remember me is requested
-        $remember = isset($credentials['remember']) && $credentials['remember'];
-      
-
+        // Update last login only if authentication was successful
         $admin->updateLastLogin($request->ip(), $request->userAgent());
 
-        // Generate token
-        $token = $this->generateToken($admin, $remember);
-
-
-        return [
-            'admin' => $admin,
-            'token' => $token,
-            'permissions' => $this->getPermissions($admin),
-            'roles' => $this->getRoles($admin)
-        ];
-    }
-
-    /**
-     * Generate JWT token with custom claims
-     */
-    private function generateToken($admin, bool $remember = false): string
-    {
-        $customClaims = [
+        // ✅ Refresh token with additional claims
+        $token = Auth::guard('admin')->claims([
             'admin_id' => $admin->id,
             'email' => $admin->email,
             'username' => $admin->username,
@@ -69,17 +64,14 @@ class AdminAuthService
             'permissions' => $admin->getAllPermissions()->pluck('name')->toArray(),
             'type' => 'admin',
             'remember' => $remember
+        ])->refresh();
 
+        return [
+            'admin' => $admin,
+            'token' => $token,
+            'permissions' => $this->getPermissions($admin),
+            'roles' => $this->getRoles($admin)
         ];
-        // Set longer expiration for remember me
-        if ($remember) {
-            // Use longer TTL for remember me (30 days)
-            config(['jwt.ttl' => config('jwt.remember_ttl', 43200)]);
-        }
-        return Auth::guard('admin')->claims($customClaims)->attempt([
-            'email' => $admin->email,
-            'password' => request('password')
-        ]);
     }
 
     /**
@@ -127,7 +119,6 @@ class AdminAuthService
                 'admin_id' => $admin?->id
             ];
         } catch (\Exception $e) {
-
             // Even if there's an error, we should still try to logout
             Auth::guard('admin')->logout();
 
@@ -148,7 +139,6 @@ class AdminAuthService
 
             return $this->adminRepository->paginate($paginationParams['per_page']);
         } catch (\Exception $e) {
-
             throw new CustomException('Failed to fetch admins list', 500);
         }
     }
