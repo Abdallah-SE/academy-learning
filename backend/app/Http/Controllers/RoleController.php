@@ -37,8 +37,8 @@ class RoleController extends Controller
             }
 
             // Pagination
-            $perPage = $request->get('per_page', 15);
-            $roles = $query->paginate($perPage);
+            $paginationParams = $this->getPaginationParams($request, 'default');
+            $roles = $query->paginate($paginationParams['per_page']);
 
             return response()->json([
                 'success' => true,

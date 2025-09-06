@@ -7,9 +7,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
+use App\Traits\HasPagination;
 
 class AdminAuthService
 {
+    use HasPagination;
+    
     protected $adminRepository;
 
     public function __construct(AdminRepositoryInterface $adminRepository)
@@ -141,12 +144,47 @@ class AdminAuthService
     public function getPaginatedAdmins(Request $request): \Illuminate\Pagination\LengthAwarePaginator
     {
         try {
-            $perPage = $request->get('per_page', 15);
+            $paginationParams = $this->getPaginationParams($request, 'admin');
 
-            return $this->adminRepository->paginate($perPage);
+            return $this->adminRepository->paginate($paginationParams['per_page']);
         } catch (\Exception $e) {
 
             throw new CustomException('Failed to fetch admins list', 500);
         }
+    }
+
+    public function getTrashedAdmins(Request $request): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        try {
+            $paginationParams = $this->getPaginationParams($request, 'admin');
+            $filters = $this->extractFilters($request);
+
+            return $this->adminRepository->getTrashed($paginationParams['per_page'], $filters);
+        } catch (\Exception $e) {
+            Log::error('Error fetching trashed admins', [
+                'error' => $e->getMessage(),
+                'filters' => $filters ?? []
+            ]);
+
+            throw new CustomException('Failed to fetch trashed admins', 500);
+        }
+    }
+
+    /**
+     * Extract filters from request
+     */
+    private function extractFilters(Request $request): array
+    {
+        $filters = [];
+
+        if ($request->has('status')) {
+            $filters['status'] = $request->get('status');
+        }
+
+        if ($request->has('role')) {
+            $filters['role'] = $request->get('role');
+        }
+
+        return $filters;
     }
 }

@@ -12,6 +12,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
   const menuItems = [
     { icon: '📊', label: 'Dashboard', href: '/admin/dashboard', active: true },
     { icon: '👥', label: 'Users', href: '/admin/users' },
+    { icon: '👨‍💼', label: 'Admins', href: '/admin/admins' },
     { icon: '📚', label: 'Courses', href: '/admin/courses' },
     { icon: '💰', label: 'Revenue', href: '/admin/revenue' },
     { icon: '⚙️', label: 'Settings', href: '/admin/settings' },

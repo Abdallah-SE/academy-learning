@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
+    "@tanstack/react-query": "^5.87.1",
+    "@tanstack/react-table": "^8.21.3",
+    "ag-grid-community": "^34.1.2",
+    "ag-grid-react": "^34.1.2",
     "axios": "^1.6.0",
     "clsx": "^2.0.0",
     "i18next": "^25.4.2",

@@ -59,8 +59,8 @@ class AdminUserController extends BaseController
             $query->orderBy($sortBy, $sortOrder);
 
             // Pagination
-            $perPage = $request->get('per_page', 15);
-            $users = $query->paginate($perPage);
+            $paginationParams = $this->getPaginationParams($request, 'user');
+            $users = $query->paginate($paginationParams['per_page']);
 
             $this->logInfo('Admin accessed users list', [
                 'admin_id' => $admin->id,

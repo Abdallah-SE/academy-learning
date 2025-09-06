@@ -62,8 +62,8 @@ class UserMembershipController extends Controller
             }
 
             // Pagination
-            $perPage = $request->get('per_page', 15);
-            $memberships = $query->paginate($perPage);
+            $paginationParams = $this->getPaginationParams($request, 'membership');
+            $memberships = $query->paginate($paginationParams['per_page']);
 
             return response()->json([
                 'success' => true,

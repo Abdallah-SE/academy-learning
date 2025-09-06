@@ -7,10 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Exceptions\CustomException;
 use App\Services\Interfaces\ImageServiceInterface;
+use App\Traits\HasPagination;
 use Illuminate\Support\Facades\Hash;
 
 class AdminService
 {
+    use HasPagination;
+    
     protected $adminRepository;
     protected $imageService;
 
@@ -28,10 +31,10 @@ class AdminService
     public function getPaginatedAdmins(Request $request): \Illuminate\Pagination\LengthAwarePaginator
     {
         try {
-            $perPage = $request->get('per_page', 15);
+            $paginationParams = $this->getPaginationParams($request, 'admin');
             $filters = $this->extractFilters($request);
 
-            return $this->adminRepository->paginate($perPage, $filters);
+            return $this->adminRepository->paginate($paginationParams['per_page'], $filters);
         } catch (\Exception $e) {
             Log::error('Error fetching paginated admins', [
                 'error' => $e->getMessage(),
@@ -82,7 +85,7 @@ class AdminService
         } catch (\Exception $e) {
             Log::error('Error creating admin', [
                 'error' => $e->getMessage(),
-                'data' => array_except($data, ['password', 'password_confirmation'])
+                'data' => collect($data)->except(['password', 'password_confirmation'])->toArray()
             ]);
 
             throw new CustomException('Failed to create admin: ' . $e->getMessage(), 500);
@@ -263,10 +266,10 @@ class AdminService
     public function getTrashedAdmins(Request $request): \Illuminate\Pagination\LengthAwarePaginator
     {
         try {
-            $perPage = $request->get('per_page', 15);
+            $paginationParams = $this->getPaginationParams($request, 'admin');
             $filters = $this->extractFilters($request);
 
-            return $this->adminRepository->getTrashed($perPage, $filters);
+            return $this->adminRepository->getTrashed($paginationParams['per_page'], $filters);
         } catch (\Exception $e) {
             Log::error('Error fetching trashed admins', [
                 'error' => $e->getMessage(),

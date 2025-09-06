@@ -38,8 +38,8 @@ class UserController extends Controller
             }
 
             // Pagination
-            $perPage = $request->get('per_page', 15);
-            $users = $query->paginate($perPage);
+            $paginationParams = $this->getPaginationParams($request, 'user');
+            $users = $query->paginate($paginationParams['per_page']);
 
             return response()->json([
                 'success' => true,

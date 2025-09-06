@@ -73,7 +73,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'pagination' => [
-        'default_per_page' => 15,
+        'default_per_page' => 10,
         'max_per_page' => 100,
         'default_sort' => 'created_at',
         'default_direction' => 'desc',

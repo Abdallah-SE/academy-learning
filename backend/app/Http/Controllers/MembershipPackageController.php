@@ -45,8 +45,8 @@ class MembershipPackageController extends Controller
             }
 
             // Pagination
-            $perPage = $request->get('per_page', 15);
-            $packages = $query->paginate($perPage);
+            $paginationParams = $this->getPaginationParams($request, 'membership');
+            $packages = $query->paginate($paginationParams['per_page']);
 
             return response()->json([
                 'success' => true,

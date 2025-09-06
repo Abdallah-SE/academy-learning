@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\CustomException;
 use App\Traits\HasPermissions;
+use App\Traits\HasPagination;
 use Exception;
 
 abstract class BaseController extends Controller
 {
-    use AuthorizesRequests, ValidatesRequests, HasPermissions;
+    use AuthorizesRequests, ValidatesRequests, HasPermissions, HasPagination;
 
     /**
      * Success response helper
@@ -175,16 +176,9 @@ abstract class BaseController extends Controller
     /**
      * Get pagination parameters helper
      */
-    protected function getPaginationParams(Request $request): array
+    protected function getPaginationParams(Request $request, string $module = 'default'): array
     {
-        return [
-            'per_page' => (int) $request->get('per_page', 15),
-            'page' => (int) $request->get('page', 1),
-            'sort_by' => $request->get('sort_by', 'created_at'),
-            'sort_direction' => $request->get('sort_direction', 'desc'),
-            'search' => $request->get('search'),
-            'filters' => $request->get('filters', [])
-        ];
+        return $this->getSimplePaginationParams($request, $module);
     }
 
     /**

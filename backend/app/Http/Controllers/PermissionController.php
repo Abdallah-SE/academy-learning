@@ -36,8 +36,8 @@ class PermissionController extends Controller
             }
 
             // Pagination
-            $perPage = $request->get('per_page', 15);
-            $permissions = $query->paginate($perPage);
+            $paginationParams = $this->getPaginationParams($request, 'default');
+            $permissions = $query->paginate($paginationParams['per_page']);
 
             return response()->json([
                 'success' => true,
