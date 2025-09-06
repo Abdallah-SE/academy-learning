@@ -109,9 +109,6 @@ export default function AdminsPage() {
             <h1 className="text-xl font-semibold text-gray-900">
               Admin Management
             </h1>
-            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-              {state.pagination.total} Total
-            </span>
           </div>
           
           <div className="flex items-center space-x-4">

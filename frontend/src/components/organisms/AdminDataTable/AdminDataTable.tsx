@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useCallback, memo } from 'react';
-import Image from 'next/image';
+import { Avatar } from '@/components/atoms/Avatar';
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -23,37 +23,6 @@ import { AdminTableEmptyState } from './AdminTableEmptyState';
 import { AdminTableLoadingState } from './AdminTableLoadingState';
 import { EyeIcon, EditIcon, TrashIcon } from 'lucide-react';
 
-// Memoized Avatar Cell Component
-const AvatarCell = memo(({ admin }: { admin: Admin }) => {
-  const avatarUrl = admin.avatar_url || admin.avatar;
-  const initials = admin.name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-
-  return (
-    <div className="flex items-center justify-center w-12 h-12 flex-shrink-0">
-      {avatarUrl ? (
-        <Image
-          src={avatarUrl}
-          alt={`${admin.name}'s avatar`}
-          width={48}
-          height={48}
-          className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 hover:border-blue-400 transition-all duration-200 shadow-sm hover:shadow-md"
-          unoptimized={true}
-        />
-      ) : (
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm border-2 border-gray-200 hover:border-blue-400 transition-all duration-200 shadow-sm hover:shadow-md">
-          {initials}
-        </div>
-      )}
-    </div>
-  );
-});
-
-AvatarCell.displayName = 'AvatarCell';
 
 interface AdminDataTableProps {
   data: Admin[];
@@ -99,10 +68,9 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = memo(({
 
   const defaultConfig: AdminTableConfig = {
     columns: [
-      { key: 'avatar', label: '', sortable: false, filterable: false, width: '80px', align: 'center' },
+      { key: 'avatar', label: 'Avatar', sortable: false, filterable: false, width: '80px', align: 'center' },
       { key: 'name', label: 'Name', sortable: true, filterable: true, width: '250px' },
       { key: 'username', label: 'Username', sortable: true, filterable: true, width: '150px' },
-      { key: 'role', label: 'Role', sortable: true, filterable: true, width: '120px' },
       { key: 'status', label: 'Status', sortable: true, filterable: true, width: '120px' },
       { key: 'last_login_at', label: 'Last Login', sortable: true, filterable: false, width: '150px' },
       { key: 'created_at', label: 'Created', sortable: true, filterable: false, width: '150px' },
@@ -152,25 +120,43 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = memo(({
         size: 50,
       },
       {
-        accessorKey: 'name',
-        header: 'Admin',
+        accessorKey: 'avatar',
+        header: 'Avatar',
         cell: ({ row }) => {
           const admin = row.original;
           return (
-            <div className="flex items-center space-x-3">
-              <AvatarCell admin={admin} />
-              <div className="flex flex-col min-w-0 flex-1">
-                <span className="text-sm font-semibold text-gray-900 truncate">
-                  {admin.name}
-                </span>
-                <span className="text-xs text-gray-500 truncate">
-                  {admin.email}
-                </span>
-              </div>
+            <div className="flex items-center justify-center">
+              <Avatar
+                src={admin.avatar_url || admin.avatar}
+                alt={`${admin.name}'s avatar`}
+                name={admin.name}
+                size="lg"
+                fallbackType="logo"
+              />
             </div>
           );
         },
-        size: 300,
+        enableSorting: false,
+        enableHiding: false,
+        size: 80,
+      },
+      {
+        accessorKey: 'name',
+        header: 'Name',
+        cell: ({ row }) => {
+          const admin = row.original;
+          return (
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-semibold text-gray-900 truncate">
+                {admin.name}
+              </span>
+              <span className="text-xs text-gray-500 truncate">
+                {admin.email}
+              </span>
+            </div>
+          );
+        },
+        size: 250,
       },
       {
         accessorKey: 'username',
@@ -186,52 +172,6 @@ export const AdminDataTable: React.FC<AdminDataTableProps> = memo(({
           );
         },
         size: 140,
-      },
-      {
-        accessorKey: 'role',
-        header: 'Role',
-        cell: ({ row }) => {
-          const role = row.getValue('role') as string;
-          const getRoleConfig = (role: string) => {
-            switch (role) {
-              case 'super_admin':
-                return { 
-                  color: 'bg-red-50 text-red-700 border-red-200', 
-                  label: 'Super Admin',
-                  icon: '👑'
-                };
-              case 'admin':
-                return { 
-                  color: 'bg-blue-50 text-blue-700 border-blue-200', 
-                  label: 'Admin',
-                  icon: '👨‍💼'
-                };
-              case 'moderator':
-                return { 
-                  color: 'bg-green-50 text-green-700 border-green-200', 
-                  label: 'Moderator',
-                  icon: '🛡️'
-                };
-              default:
-                return { 
-                  color: 'bg-gray-50 text-gray-700 border-gray-200', 
-                  label: 'Unknown',
-                  icon: '❓'
-                };
-            }
-          };
-
-          const config = getRoleConfig(role);
-          return (
-            <div className="flex items-center">
-              <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold border ${config.color}`}>
-                <span className="mr-1.5">{config.icon}</span>
-                {config.label}
-              </span>
-            </div>
-          );
-        },
-        size: 130,
       },
       {
         accessorKey: 'status',
