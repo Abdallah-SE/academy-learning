@@ -8,6 +8,7 @@ export { Input } from './Input';
 export { Label } from './Label';
 export { LanguageSelector } from './LanguageSelector';
 export { Loading } from './Loading';
+export { LoadingSpinner } from './LoadingSpinner';
 export { Logo } from './Logo';
 export { LogoutButton } from './LogoutButton';
 export { LogoutDropdown } from './LogoutDropdown';

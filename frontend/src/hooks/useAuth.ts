@@ -29,7 +29,7 @@ export const useAuth = (): UseAuthReturn => {
     setError(null);
   }, []);
 
-  // ✅ Enhanced auth status check with better error handling
+  // ✅ Enhanced auth status check with better error handling and timeout
   const checkAuthStatus = useCallback(async () => {
     if (hasInitialized.current) {
        return;
@@ -38,7 +38,15 @@ export const useAuth = (): UseAuthReturn => {
     hasInitialized.current = true;
      
     try {
-      const response = await AdminRepository.getProfile();
+      // ✅ Add timeout to prevent hanging requests
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 10000);
+      });
+      
+      const response = await Promise.race([
+        AdminRepository.getProfile(),
+        timeoutPromise
+      ]) as any;
  
       if (response.success && response.data) {
          setUser(response.data.admin);
@@ -48,12 +56,26 @@ export const useAuth = (): UseAuthReturn => {
       }
     } catch (err: any) {
        
-      // ✅ Better error handling - don't set user to null immediately
-      // This might be a temporary network issue or cookie problem
+      // ✅ Better error handling with specific error types
       if (err.response?.status === 401) {
-         setUser(null);
+        // Unauthorized - user is not authenticated
+        setUser(null);
+        setError(null); // Don't show error for normal unauthenticated state
+      } else if (err.message === 'Request timeout' || err.code === 'ECONNABORTED') {
+        // Timeout - backend might be unavailable
+        console.warn('Backend timeout - server might be unavailable');
+        setUser(null);
+        setError('Backend server is not responding. Please check if the server is running.');
+      } else if (!err.response) {
+        // Network error - backend is down
+        console.warn('Network error - backend server is down');
+        setUser(null);
+        setError('Cannot connect to backend server. Please check if the server is running.');
       } else {
-         // Don't change user state for network errors
+        // Other errors
+        console.warn('Auth check failed:', err.message);
+        setUser(null);
+        setError('Authentication check failed. Please try again.');
       }
     } finally {
        setIsInitializing(false);
@@ -64,7 +86,7 @@ export const useAuth = (): UseAuthReturn => {
     checkAuthStatus();
   }, [checkAuthStatus]);
 
-  // ✅ Enhanced login with better error handling
+  // ✅ Enhanced login with better error handling and state management
   const login = useCallback(async (data: AdminLoginData): Promise<boolean> => {
      setIsLoading(true);
     setError(null);
@@ -77,6 +99,10 @@ export const useAuth = (): UseAuthReturn => {
         // ✅ Use the admin data from login response
         setUser(response.data.admin);
         setError(null);
+        
+        // ✅ Ensure initialization state is properly set
+        setIsInitializing(false);
+        
         return true;
       } else {
          setError(response.message || 'Login failed');

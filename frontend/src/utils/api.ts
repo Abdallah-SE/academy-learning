@@ -16,15 +16,29 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Log error for debugging
-    console.error('API Error:', {
+    // Enhanced error logging for debugging
+    const errorDetails = {
       status: error.response?.status,
-      message: error.response?.data?.message,
+      message: error.response?.data?.message || error.message,
       url: error.config?.url,
-    });
+      method: error.config?.method?.toUpperCase(),
+      baseURL: error.config?.baseURL,
+      timeout: error.code === 'ECONNABORTED',
+      networkError: !error.response,
+    };
 
-    // Don't redirect automatically - let components handle 401 errors
-    // The components will check the response status and handle accordingly
+    // Only log errors in development or if they're not 401 (unauthorized)
+    if (process.env.NODE_ENV === 'development' || error.response?.status !== 401) {
+      console.error('API Error:', errorDetails);
+    }
+
+    // Handle specific error cases
+    if (error.code === 'ECONNABORTED') {
+      console.warn('Request timeout - backend might be unavailable');
+    } else if (!error.response) {
+      console.warn('Network error - backend server might be down');
+    }
+
     return Promise.reject(error);
   }
 );
