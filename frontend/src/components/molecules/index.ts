@@ -5,6 +5,8 @@ export { FormHeader } from './FormHeader';
 export { SidebarHeader } from './SidebarHeader';
 export { SidebarNavigation } from './SidebarNavigation';
 export { SidebarQuickActions } from './SidebarQuickActions';
+export { AdminFormField } from './AdminFormField';
+export { FormSection } from './FormSection';
 
 // Export types
 export type { SidebarHeaderProps } from './SidebarHeader';

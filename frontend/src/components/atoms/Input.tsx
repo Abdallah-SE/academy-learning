@@ -49,13 +49,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className={`
               w-full px-4 py-3 border rounded-lg text-gray-900 placeholder-gray-500
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-              transition-all duration-300 ease-in-out
+              transition-all duration-200 ease-in-out
               ${isPassword ? 'pr-14' : ''}
               ${error 
                 ? 'border-red-300 focus:ring-red-500 bg-red-50/30' 
                 : isFocused
-                ? 'border-blue-400 shadow-sm'
-                : 'border-gray-300 hover:border-gray-400'
+                ? 'border-blue-400 shadow-sm bg-blue-50/30'
+                : 'border-gray-300 hover:border-gray-400 bg-white'
               }
               ${className}
             `}

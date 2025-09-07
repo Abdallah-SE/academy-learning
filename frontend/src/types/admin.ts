@@ -41,17 +41,19 @@ export interface CreateAdminRequest {
   email: string;
   username?: string;
   password: string;
-  role: string;
-  permissions?: string[];
+  password_confirmation: string;
+  status?: 'active' | 'inactive' | 'suspended';
+  two_factor_enabled?: boolean;
 }
 
 export interface UpdateAdminRequest {
   name?: string;
   email?: string;
   username?: string;
-  role?: string;
-  permissions?: string[];
+  password?: string;
+  password_confirmation?: string;
   status?: 'active' | 'inactive' | 'suspended';
+  two_factor_enabled?: boolean;
 }
 
 export interface AdminListState {
@@ -98,4 +100,14 @@ export interface AdminListActions {
   onDelete: (admin: Admin) => void;
   onView: (admin: Admin) => void;
   onRefresh: () => void;
+}
+
+export interface CreateAdminResponse {
+  data: Admin;
+  message: string;
+}
+
+export interface UpdateAdminResponse {
+  data: Admin;
+  message: string;
 }

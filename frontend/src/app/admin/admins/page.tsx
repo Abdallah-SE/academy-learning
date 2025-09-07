@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/hooks/useTranslations';
@@ -13,12 +13,14 @@ import { useAdminList } from '@/hooks/useAdminList';
 import { Admin, AdminListActions } from '@/types/admin';
 import { PlusIcon, RefreshCwIcon } from 'lucide-react';
 import { usePageBreadcrumb } from '@/hooks/useBreadcrumb';
+import { CreateAdminModalContainer } from '@/components/containers';
 
 export default function AdminsPage() {
   const { isAuthenticated, isInitializing, user } = useAuthContext();
   const { currentLanguage } = useLanguage();
   const t = useTranslations('admin');
   const router = useRouter();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const {
     state,
@@ -66,8 +68,16 @@ export default function AdminsPage() {
   };
 
   const handleCreateAdmin = () => {
-    // TODO: Implement create admin functionality
-    console.log('Create new admin');
+    setIsCreateModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSuccess = () => {
+    // Refresh the admin list after successful creation
+    actions.handleRefresh();
   };
 
 
@@ -203,6 +213,13 @@ export default function AdminsPage() {
           />
         </div>
       </main>
+
+      {/* Create Admin Modal */}
+      <CreateAdminModalContainer
+        isOpen={isCreateModalOpen}
+        onClose={handleModalClose}
+        onSuccess={handleCreateSuccess}
+      />
     </>
   );
 }

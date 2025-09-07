@@ -17,6 +17,8 @@ export { SidebarToggleButton } from './SidebarToggleButton';
 export { SidebarFallbackToggle } from './SidebarFallbackToggle';
 export { SidebarLogoutButton } from './SidebarLogoutButton';
 export { SidebarErrorBoundary } from './SidebarErrorBoundary';
+export { Select } from './Select';
+export { Modal } from './Modal';
 
 // Export types
 export type { SidebarMenuItemProps } from './SidebarMenuItem';
