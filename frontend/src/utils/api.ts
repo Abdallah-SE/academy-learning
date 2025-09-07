@@ -16,20 +16,29 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Enhanced error logging for debugging
+    // Enhanced error logging for debugging with fallback handling
     const errorDetails = {
-      status: error.response?.status,
-      message: error.response?.data?.message || error.message,
-      url: error.config?.url,
-      method: error.config?.method?.toUpperCase(),
-      baseURL: error.config?.baseURL,
+      status: error.response?.status || 'No status',
+      message: error.response?.data?.message || error.message || 'Unknown error',
+      url: error.config?.url || 'Unknown URL',
+      method: error.config?.method?.toUpperCase() || 'Unknown method',
+      baseURL: error.config?.baseURL || 'Unknown base URL',
       timeout: error.code === 'ECONNABORTED',
       networkError: !error.response,
+      code: error.code || 'No error code',
+      fullError: error, // Include the full error object for debugging
     };
 
     // Only log errors in development or if they're not 401 (unauthorized)
     if (process.env.NODE_ENV === 'development' || error.response?.status !== 401) {
-      console.error('API Error:', errorDetails);
+      console.error('API Error Details:', errorDetails);
+      
+      // Additional logging for empty error cases
+      if (!errorDetails.message || errorDetails.message === 'Unknown error') {
+        console.error('Full error object:', error);
+        console.error('Error response:', error.response);
+        console.error('Error config:', error.config);
+      }
     }
 
     // Handle specific error cases
