@@ -42,6 +42,9 @@ Route::prefix('v1/admin')->group(function () {
         Route::get('admins/trashed', [AdminController::class, 'trashed']); // Get soft deleted admins
         Route::delete('admins/{id}/force', [AdminController::class, 'forceDelete']); // Permanent delete
         Route::patch('admins/{id}/restore', [AdminController::class, 'restore']); // Restore soft deleted
+        
+        // Roles endpoint
+        Route::get('roles', [AdminController::class, 'getAvailableRoles']);
 
         Route::put('/admins/{adminId}/avatar', [AdminController::class, 'uploadAvatar']);
         // Avatar Management (separate controller)

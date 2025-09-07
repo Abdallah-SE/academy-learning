@@ -16,6 +16,9 @@ interface CreateAdminModalProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onInputBlur: (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  onRolesChange?: (roles: string[]) => void;
+  availableRoles?: Array<{ value: string; label: string; description?: string }>;
+  rolesLoading?: boolean;
 }
 
 export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
@@ -29,6 +32,9 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
   onInputChange,
   onInputBlur,
   onSubmit,
+  onRolesChange,
+  availableRoles = [],
+  rolesLoading = false,
 }) => {
   return (
     <Modal
@@ -60,6 +66,9 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
           touched={touched}
           onInputChange={onInputChange}
           onInputBlur={onInputBlur}
+          onRolesChange={onRolesChange}
+          availableRoles={availableRoles}
+          rolesLoading={rolesLoading}
           compact={true}
         />
 

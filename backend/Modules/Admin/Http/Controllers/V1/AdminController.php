@@ -159,4 +159,19 @@ class AdminController extends BaseController
             return $this->handleException($e);
         }
     }
+
+    /**
+     * Get available roles
+     */
+    public function getAvailableRoles()
+    {
+        try {
+            $roles = $this->adminService->getAvailableRoles();
+
+            return $this->successResponse($roles, 'Available roles retrieved successfully');
+        } catch (\Exception $e) {
+            $this->logError($e, 'Error fetching available roles');
+            return $this->handleException($e);
+        }
+    }
 }

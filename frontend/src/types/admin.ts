@@ -1,3 +1,11 @@
+export interface Role {
+  id: number;
+  name: string;
+  guard_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Admin {
   id: number;
   name: string;
@@ -7,6 +15,7 @@ export interface Admin {
   avatar_url?: string;
   status: 'active' | 'inactive' | 'suspended';
   role: string;
+  roles?: Role[];
   permissions: string[];
   last_login_at?: string;
   created_at: string;
@@ -43,7 +52,7 @@ export interface CreateAdminRequest {
   password: string;
   password_confirmation: string;
   status?: 'active' | 'inactive' | 'suspended';
-  two_factor_enabled?: boolean;
+  roles?: string[];
 }
 
 export interface UpdateAdminRequest {
@@ -53,7 +62,7 @@ export interface UpdateAdminRequest {
   password?: string;
   password_confirmation?: string;
   status?: 'active' | 'inactive' | 'suspended';
-  two_factor_enabled?: boolean;
+  roles?: string[];
 }
 
 export interface AdminListState {

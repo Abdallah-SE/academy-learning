@@ -51,6 +51,10 @@ class AdminService
     public function createAdmin(array $data): array
     {
         try {
+            // Extract roles before creating admin
+            $roles = $data['roles'] ?? [];
+            unset($data['roles']); // Remove roles from data array
+
             // Hash the password
             $data['password'] = Hash::make($data['password']);
 
@@ -70,12 +74,21 @@ class AdminService
             // Create the admin
             $admin = $this->adminRepository->create($data);
 
+            // Assign roles if provided
+            if (!empty($roles)) {
+                $admin->assignRole($roles);
+            } else {
+                // Assign default 'moderator' role if no roles provided
+                $admin->assignRole('moderator');
+            }
+
             // Load relationships
             $admin->load('roles', 'permissions');
 
             Log::info('Admin created successfully', [
                 'admin_id' => $admin->id,
                 'email' => $admin->email,
+                'roles' => $roles,
                 'created_by' => auth('admin')->id() ?? 'system'
             ]);
 
@@ -281,6 +294,28 @@ class AdminService
             ]);
 
             throw new CustomException('Failed to fetch trashed admins', 500);
+        }
+    }
+
+    /**
+     * Get available roles
+     */
+    public function getAvailableRoles(): array
+    {
+        try {
+            $roles = \Spatie\Permission\Models\Role::where('guard_name', 'admin')
+                ->select('id', 'name', 'guard_name', 'created_at', 'updated_at')
+                ->orderBy('name')
+                ->get()
+                ->toArray();
+
+            return $roles;
+        } catch (\Exception $e) {
+            Log::error('Error fetching available roles', [
+                'error' => $e->getMessage()
+            ]);
+
+            throw new CustomException('Failed to fetch available roles', 500);
         }
     }
 }

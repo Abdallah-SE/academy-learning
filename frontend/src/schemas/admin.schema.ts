@@ -33,10 +33,10 @@ export const createAdminSchema = z.object({
     .enum(['active', 'inactive', 'suspended'])
     .optional()
     .default('active'),
-  two_factor_enabled: z
-    .boolean()
+  roles: z
+    .array(z.string())
     .optional()
-    .default(false),
+    .default([]),
 }).refine((data) => data.password === data.password_confirmation, {
   message: "Password confirmation does not match",
   path: ["password_confirmation"],
@@ -78,8 +78,8 @@ export const updateAdminSchema = z.object({
   status: z
     .enum(['active', 'inactive', 'suspended'])
     .optional(),
-  two_factor_enabled: z
-    .boolean()
+  roles: z
+    .array(z.string())
     .optional(),
 }).refine((data) => {
   if (data.password && data.password_confirmation) {

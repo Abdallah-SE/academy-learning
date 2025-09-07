@@ -1,5 +1,5 @@
 import api from "@/utils/api";
-import { CreateAdminRequest, UpdateAdminRequest, CreateAdminResponse, UpdateAdminResponse } from "@/types/admin";
+import { CreateAdminRequest, UpdateAdminRequest, CreateAdminResponse, UpdateAdminResponse, Role } from "@/types/admin";
 
 export interface AdminLoginData {
   email: string;
@@ -81,5 +81,10 @@ export const AdminRepository = {
   getAll: async (params?: any): Promise<any> => {
     const response = await api.get("/admin/admins", { params });
     return response.data;
+  },
+
+  getAvailableRoles: async (): Promise<Role[]> => {
+    const response = await api.get("/admin/roles");
+    return response.data.data || response.data;
   },
 };

@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { CreateAdminModal } from '@/components/presenters';
 import { useCreateAdminForm } from '@/hooks/useCreateAdminForm';
 import { AdminRepository } from '@/repositories/adminRepository';
 import { CreateAdminFormData } from '@/schemas/admin.schema';
+import { Role } from '@/types/admin';
 import toast from 'react-hot-toast';
 
 interface CreateAdminModalContainerProps {
@@ -19,6 +20,28 @@ export const CreateAdminModalContainer: React.FC<CreateAdminModalContainerProps>
   onSuccess,
 }) => {
   const [error, setError] = useState<string | null>(null);
+  const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(false);
+
+  // Fetch available roles when modal opens
+  useEffect(() => {
+    if (isOpen && availableRoles.length === 0) {
+      const fetchRoles = async () => {
+        try {
+          setRolesLoading(true);
+          const roles = await AdminRepository.getAvailableRoles();
+          setAvailableRoles(roles);
+        } catch (error) {
+          console.error('Error fetching roles:', error);
+          toast.error('Failed to load available roles');
+        } finally {
+          setRolesLoading(false);
+        }
+      };
+      
+      fetchRoles();
+    }
+  }, [isOpen, availableRoles.length]);
 
   const handleCreateAdmin = useCallback(async (data: CreateAdminFormData) => {
     try {
@@ -87,6 +110,7 @@ export const CreateAdminModalContainer: React.FC<CreateAdminModalContainerProps>
     handleInputBlur,
     handleSubmit,
     resetForm,
+    handleRolesChange,
   } = useCreateAdminForm({
     onSubmit: handleCreateAdmin,
   });
@@ -103,6 +127,13 @@ export const CreateAdminModalContainer: React.FC<CreateAdminModalContainerProps>
     return null;
   }
 
+  // Transform roles for MultiSelect component
+  const roleOptions = availableRoles.map(role => ({
+    value: role.name,
+    label: role.name.charAt(0).toUpperCase() + role.name.slice(1).replace(/_/g, ' '),
+    description: `Role: ${role.name}`
+  }));
+
   return (
     <CreateAdminModal
       isOpen={isOpen}
@@ -115,6 +146,9 @@ export const CreateAdminModalContainer: React.FC<CreateAdminModalContainerProps>
       onInputChange={handleInputChange}
       onInputBlur={handleInputBlur}
       onSubmit={handleSubmit}
+      onRolesChange={handleRolesChange}
+      availableRoles={roleOptions}
+      rolesLoading={rolesLoading}
     />
   );
 };

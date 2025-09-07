@@ -29,6 +29,8 @@ class CreateAdminRequest extends FormRequest
             'password_confirmation' => 'required|string|min:6|max:255',
             'status' => 'sometimes|string|in:active,inactive,suspended',
             'two_factor_enabled' => 'sometimes|boolean',
+            'roles' => 'sometimes|array',
+            'roles.*' => 'string|exists:roles,name',
         ];
     }
 
@@ -58,6 +60,9 @@ class CreateAdminRequest extends FormRequest
             'password_confirmation.max' => 'Password confirmation cannot exceed 255 characters',
             'status.in' => 'Status must be active, inactive, or suspended',
             'two_factor_enabled.boolean' => 'Two factor enabled must be true or false',
+            'roles.array' => 'Roles must be an array',
+            'roles.*.string' => 'Each role must be a string',
+            'roles.*.exists' => 'One or more selected roles do not exist',
         ];
     }
 }

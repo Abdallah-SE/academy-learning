@@ -19,6 +19,7 @@ interface UseCreateAdminFormReturn {
   setFieldValue: (field: keyof CreateAdminFormData, value: any) => void;
   setFieldError: (field: keyof CreateAdminFormData, error: string) => void;
   clearFieldError: (field: keyof CreateAdminFormData) => void;
+  handleRolesChange: (roles: string[]) => void;
 }
 
 const initialFormData: CreateAdminFormData = {
@@ -28,7 +29,7 @@ const initialFormData: CreateAdminFormData = {
   password: '',
   password_confirmation: '',
   status: 'active',
-  two_factor_enabled: false,
+  roles: [],
 };
 
 export const useCreateAdminForm = ({ 
@@ -170,6 +171,22 @@ export const useCreateAdminForm = ({
     }));
   }, []);
 
+  // Handle roles change
+  const handleRolesChange = useCallback((roles: string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      roles,
+    }));
+
+    // Clear error when user changes roles
+    if (errors.roles) {
+      setErrors(prev => ({
+        ...prev,
+        roles: undefined,
+      }));
+    }
+  }, [errors.roles]);
+
   return {
     formData,
     errors,
@@ -183,5 +200,6 @@ export const useCreateAdminForm = ({
     setFieldValue,
     setFieldError,
     clearFieldError,
+    handleRolesChange,
   };
 };
