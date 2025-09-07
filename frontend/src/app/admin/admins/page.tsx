@@ -5,7 +5,6 @@ import { useAuthContext } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useRouter } from 'next/navigation';
-import { MainLayout } from '@/components/organisms/MainLayout';
 import { AdminDataTable } from '@/components/organisms/AdminDataTable/AdminDataTable';
 import { Loading } from '@/components/atoms/Loading';
 import { LanguageSelector } from '@/components/atoms/LanguageSelector';
@@ -94,7 +93,7 @@ export default function AdminsPage() {
   }
 
   return (
-    <MainLayout>
+    <>
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="flex items-center justify-between h-16 px-6">
@@ -204,6 +203,6 @@ export default function AdminsPage() {
           />
         </div>
       </main>
-    </MainLayout>
+    </>
   );
 }

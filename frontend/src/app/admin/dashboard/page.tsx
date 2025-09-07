@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 import { LanguageSelector } from '@/components/atoms/LanguageSelector';
 import { Loading } from '@/components/atoms/Loading';
 import { LogoutButton, LogoutDropdown } from '@/components/atoms';
-import { MainLayout } from '@/components/organisms/MainLayout';
 import { usePageBreadcrumb } from '@/hooks/useBreadcrumb';
 import { HomeIcon } from 'lucide-react';
 
@@ -50,7 +49,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <MainLayout>
+    <>
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="flex items-center justify-between h-16 px-6">
@@ -149,6 +148,6 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       </main>
-    </MainLayout>
+    </>
   );
 }

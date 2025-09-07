@@ -1,4 +1,5 @@
 import { ClientLayout } from '@/components/layouts/ClientLayout';
+import { MainLayout } from '@/components/organisms/MainLayout';
 
 export default function AdminLayout({
   children,
@@ -7,7 +8,9 @@ export default function AdminLayout({
 }) {
   return (
     <ClientLayout>
-      {children}
+      <MainLayout>
+        {children}
+      </MainLayout>
     </ClientLayout>
   );
 }

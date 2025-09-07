@@ -1,14 +1,31 @@
 'use client';
 
-import { useEffect, useCallback, useMemo } from 'react';
+import { useEffect, useCallback, useMemo, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useBreadcrumb as useBreadcrumbContext } from '@/context/BreadcrumbContext';
 import { getBreadcrumbConfig } from '@/config/breadcrumbs';
 import { BreadcrumbItem } from '@/components/atoms/Breadcrumb';
 
 export const useBreadcrumb = () => {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  // Always call hooks in the same order - this is the key to fixing Rules of Hooks
+  const [isClient, setIsClient] = useState(false);
+  
+  // Always call these hooks, but handle errors gracefully
+  let pathname = '/';
+  let searchParams = new URLSearchParams();
+  
+  try {
+    pathname = usePathname();
+    searchParams = useSearchParams();
+  } catch (error) {
+    // Silently handle the error - this is expected during SSR
+    pathname = '/';
+    searchParams = new URLSearchParams();
+  }
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   const { setBreadcrumbs, breadcrumbs } = useBreadcrumbContext();
 
   // Memoize search params to prevent unnecessary re-renders
