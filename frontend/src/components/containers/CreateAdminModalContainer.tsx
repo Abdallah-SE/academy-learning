@@ -47,15 +47,24 @@ export const CreateAdminModalContainer: React.FC<CreateAdminModalContainerProps>
     try {
       setError(null);
       
-      const response = await AdminRepository.create(data);
+      // Clean up data before sending
+      const cleanData = {
+        ...data,
+        username: data.username?.trim() || null, // Convert empty string to null
+        roles: data.roles || [], // Ensure roles is always an array
+      };
+
+      console.log('🚀 Creating admin with data:', cleanData);
       
-      // Laravel Resource response structure: { data: {...}, message: "..." }
-      // If we have data and message, it's a success
+      const response = await AdminRepository.create(cleanData);
+      
       if (response.data && response.message) {
-        // Show success toast
+        // Success flow
         toast.success(`Admin Created Successfully! ${data.name} has been added to the system.`);
         
-        // Close modal and refresh data
+        // Reset form and close modal
+        resetForm();
+        setError(null);
         onClose();
         onSuccess?.();
       } else {
@@ -64,34 +73,39 @@ export const CreateAdminModalContainer: React.FC<CreateAdminModalContainerProps>
         toast.error(`Creation Failed: ${errorMessage}`);
       }
     } catch (err: any) {
-      console.error('Error creating admin:', err);
+      console.error('❌ Error creating admin:', err);
       
-      // Handle different types of errors
+      // Professional error handling with detailed validation error display
       let errorMessage = 'An unexpected error occurred';
+      let validationErrors: Record<string, string[]> = {};
       
       if (err.response?.status === 422) {
         // Validation errors from backend
-        const validationErrors = err.response.data?.errors;
-        if (validationErrors) {
-          const firstError = Object.values(validationErrors)[0] as string[];
+        const backendErrors = err.response.data?.errors;
+        if (backendErrors) {
+          validationErrors = backendErrors;
+          // Display first validation error
+          const firstError = Object.values(backendErrors)[0] as string[];
           errorMessage = firstError[0] || 'Validation error occurred';
+          
+          // Show all validation errors in console for debugging
+          console.group('🔍 Validation Errors:');
+          Object.entries(backendErrors).forEach(([field, messages]) => {
+            console.error(`${field}:`, messages);
+          });
+          console.groupEnd();
         } else {
           errorMessage = err.response.data?.message || 'Validation error occurred';
         }
       } else if (err.response?.status === 409) {
-        // Conflict - email or username already exists
         errorMessage = 'Email or username already exists';
       } else if (err.response?.status === 403) {
-        // Forbidden - insufficient permissions
         errorMessage = 'You do not have permission to create admins';
       } else if (err.response?.status >= 500) {
-        // Server error
         errorMessage = 'Server error occurred. Please try again later.';
       } else if (!err.response) {
-        // Network error
         errorMessage = 'Network error. Please check your connection and try again.';
       } else {
-        // Other errors
         errorMessage = err.response.data?.message || err.message || 'An unexpected error occurred';
       }
       

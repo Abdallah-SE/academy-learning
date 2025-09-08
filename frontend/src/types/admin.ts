@@ -14,12 +14,25 @@ export interface Admin {
   avatar?: string;
   avatar_url?: string;
   status: 'active' | 'inactive' | 'suspended';
-  role: string;
-  roles?: Role[];
+  role: string; // Primary role for data table
+  roles: string[]; // All roles as array
   permissions: string[];
   last_login_at?: string;
+  last_login_ip?: string;
+  email_verified_at?: string;
+  two_factor_enabled?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+// Backend Response Types
+export interface BackendResponse<T = any> {
+  success: boolean;
+  message: string;
+  timestamp: string;
+  status_code: number;
+  data?: T;
+  errors?: Record<string, string[]>;
 }
 
 export interface AdminListResponse {
@@ -33,6 +46,12 @@ export interface AdminListResponse {
     to: number;
     has_more_pages: boolean;
   };
+  message: string;
+}
+
+export interface AdminSingleResponse {
+  data: Admin;
+  message: string;
 }
 
 export interface AdminFilters {

@@ -24,7 +24,7 @@ class CreateAdminRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:admins,email',
-            'username' => 'sometimes|string|max:255|alpha_dash|unique:admins,username',
+            'username' => 'nullable|string|max:255|alpha_dash|unique:admins,username',
             'password' => 'required|string|min:6|max:255|confirmed',
             'password_confirmation' => 'required|string|min:6|max:255',
             'status' => 'sometimes|string|in:active,inactive,suspended',
@@ -63,6 +63,22 @@ class CreateAdminRequest extends FormRequest
             'roles.array' => 'Roles must be an array',
             'roles.*.string' => 'Each role must be a string',
             'roles.*.exists' => 'One or more selected roles do not exist',
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     */
+    public function attributes(): array
+    {
+        return [
+            'name' => 'Full Name',
+            'email' => 'Email Address',
+            'username' => 'Username',
+            'password' => 'Password',
+            'password_confirmation' => 'Password Confirmation',
+            'status' => 'Status',
+            'roles' => 'Roles',
         ];
     }
 }

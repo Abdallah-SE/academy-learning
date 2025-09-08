@@ -14,11 +14,11 @@ export const createAdminSchema = z.object({
     .trim(),
   username: z
     .string()
-    .min(1, 'Username is required')
     .max(255, 'Username cannot exceed 255 characters')
-    .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, dashes, and underscores')
+    .regex(/^[a-zA-Z0-9_-]*$/, 'Username can only contain letters, numbers, dashes, and underscores')
     .trim()
-    .optional(),
+    .optional()
+    .or(z.literal('')), // Allow empty string
   password: z
     .string()
     .min(1, 'Password is required')

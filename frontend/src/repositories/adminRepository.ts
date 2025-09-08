@@ -1,10 +1,19 @@
 import api from "@/utils/api";
-import { CreateAdminRequest, UpdateAdminRequest, CreateAdminResponse, UpdateAdminResponse, Role } from "@/types/admin";
+import { 
+  CreateAdminRequest, 
+  UpdateAdminRequest, 
+  CreateAdminResponse, 
+  UpdateAdminResponse, 
+  Role,
+  AdminSingleResponse,
+  AdminListResponse,
+  BackendResponse
+} from "@/types/admin";
 
 export interface AdminLoginData {
   email: string;
   password: string;
-  remember?: boolean; // ✅ Add remember me option
+  remember?: boolean;
 }
 
 export interface AdminUser {
@@ -25,7 +34,6 @@ export interface AdminLoginResponse {
   message: string;
   data?: {
     admin: AdminUser;
-    // ✅ Remove token fields - not needed with HttpOnly cookies
     permissions: string[];
     roles: string[];
   };
@@ -68,17 +76,17 @@ export const AdminRepository = {
     return response.data;
   },
 
-  delete: async (id: number): Promise<{ success: boolean; message: string }> => {
+  delete: async (id: number): Promise<BackendResponse> => {
     const response = await api.delete(`/admin/admins/${id}`);
     return response.data;
   },
 
-  getById: async (id: number): Promise<AdminProfileResponse> => {
+  getById: async (id: number): Promise<AdminSingleResponse> => {
     const response = await api.get(`/admin/admins/${id}`);
     return response.data;
   },
 
-  getAll: async (params?: any): Promise<any> => {
+  getAll: async (params?: any): Promise<AdminListResponse> => {
     const response = await api.get("/admin/admins", { params });
     return response.data;
   },

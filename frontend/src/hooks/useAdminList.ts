@@ -25,7 +25,6 @@ export const useAdminList = () => {
 
   const admins = (adminsResponse as AdminListResponse)?.data || [];
   const pagination = useMemo(() => {
-    // Handle both flat and nested pagination structures
     const paginationData = (adminsResponse as AdminListResponse)?.pagination;
     return {
       current_page: paginationData?.current_page || 1,
@@ -38,20 +37,24 @@ export const useAdminList = () => {
     };
   }, [adminsResponse]);
 
-
   const handleRefresh = useCallback(async () => {
-    console.log('Refreshing admin data and clearing filters...');
+    console.log('🔄 Refreshing admin data and clearing filters...');
     setIsRefreshing(true);
+    
     try {
       // Reset all filters and search
       resetFilters();
       
       // Invalidate and refetch the admins query
       await queryClient.invalidateQueries({ queryKey: ['admins'] });
-      await refetch();
-      console.log('Admin data refreshed and filters cleared successfully');
+      const result = await refetch();
+      
+      console.log('✅ Admin data refreshed and filters cleared successfully', {
+        totalAdmins: result.data?.data?.length || 0,
+        pagination: result.data?.pagination
+      });
     } catch (error) {
-      console.error('Error refreshing admin data:', error);
+      console.error('❌ Error refreshing admin data:', error);
     } finally {
       setIsRefreshing(false);
     }

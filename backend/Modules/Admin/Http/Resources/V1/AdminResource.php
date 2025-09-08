@@ -14,6 +14,9 @@ class AdminResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $roleNames = $this->roles->pluck('name');
+        $primaryRole = $roleNames->first();
+        
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -22,8 +25,9 @@ class AdminResource extends JsonResource
             'avatar' => $this->avatar,
             'avatar_url' => $this->avatar_url,
             'status' => $this->status,
-            'roles' => $this->roles->pluck('name'),
-            'permissions' => $this->getAllPermissions()->pluck('name'),
+            'role' => $primaryRole ?? 'unassigned', // Primary role for data table
+            'roles' => $roleNames->toArray(), // All roles as array
+            'permissions' => $this->getAllPermissions()->pluck('name')->toArray(),
             'last_login_at' => $this->last_login_at?->toISOString(),
             'last_login_ip' => $this->last_login_ip,
             'email_verified_at' => $this->email_verified_at?->toISOString(),
